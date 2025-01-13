@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
 set -e # Breche direkt ab, wenn ein Fehler auftritt
 
-# Configuration Variables
+#### Configuration Variables #####
+
 SSD=yes
 ARCH=amd64
 MICROARCH=amd64
 SUFFIX=desktop-openrc
+
+##################################
+
+
+
+
+## Getting Stage-File Details
 DIST="https://distfiles.gentoo.org/releases/${ARCH}/autobuilds/"
 STAGE3PATH="$(wget -q -O- "${DIST}/latest-stage3-${MICROARCH}-${SUFFIX}.txt" | grep '\.tar\.xz' | grep -o '^[^ ]*\.tar\.xz')"
 STAGE3="$(basename ${STAGE3PATH})"
-BASEPACKETSELECTION="sys-fs/dosfstools sys-fs/btrfs-progs neovim htop"
 
 
-echo "Gentoo Installation Script by Simon. This is not a general script; it is tailored to my exact use case. Read before use."
+echo "Gentoo Installation Script by Simon. This is not a general script; it is tailored to exactly my use cases. Read before use."
 read -e -p "Do you like to configure wireless network or static ips (y/N): " wireless
 if [[ "$wireless" == [Yy] ]]; then
     ip addr
@@ -22,7 +29,7 @@ if [[ "$wireless" == [Yy] ]]; then
     echo "####################################"
 fi
 echo "###############Output###############"
-ip addr
+ip addr | less
 ping -c3 "www.gentoo.org"
 echo "####################################"
 read -p "Please validate the internet connectivity before continuing. Press Enter when ready" < /dev/tty
@@ -128,7 +135,8 @@ elif [ "$SSD" = "no" ]; then
     cp fstab_nossd /mnt/gentoo/etc/fstab
 fi
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
-cp install_gentoo_step2.sh /mnt/gentoo/
+cp install_gentoo_step2.sh /mnt/gentoo/continue.sh
+chmod +x /mnt/gentoo/continue.sh
 
 mount --types proc /proc /mnt/gentoo/proc
 mount --rbind /sys /mnt/gentoo/sys
@@ -140,3 +148,8 @@ mount --make-slave /mnt/gentoo/run
 ## First part finishes after chroot and the script will not continue to run.
 chroot /mnt/gentoo /bin/bash
 
+## This part is executed after the chroot environment is left.
+cd
+umount -l /mnt/gentoo/dev{/shm,/pts,}
+umount -R /mnt/gentoo
+reboot
