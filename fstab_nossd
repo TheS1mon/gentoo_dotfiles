@@ -1,0 +1,32 @@
+# <Dateisystem>     <Mountpoint>       <Typ>   <Optionen>                                                          <Dump> <Pass>
+
+# EFI-Partition
+LABEL=EFI           /efi          vfat    defaults,noatime                                                   0      2
+
+# Swap-Partition
+LABEL=SWAP          none               swap    sw                                                                 0      0
+
+# Root-Partition mit Btrfs (Subvol=@)
+LABEL=ROOT          /                  btrfs   defaults,noatime,compress=zstd:3,space_cache=v2,subvol=@           0      0
+
+# /home (Subvol=@home)
+LABEL=ROOT          /home              btrfs   defaults,noatime,compress=zstd:3,space_cache=v2,subvol=@home       0      0
+
+# .snapshots (Subvol=@snapshots)
+LABEL=ROOT          /.snapshots        btrfs   defaults,noatime,compress=zstd:3,space_cache=v2,subvol=@snapshots  0      0
+
+# /var/log (Subvol=@var_log)
+LABEL=ROOT          /var/log           btrfs   defaults,noatime,compress=zstd:3,space_cache=v2,subvol=@var_log    0      0
+
+# Optional: /var/cache (Subvol=@var_cache)
+LABEL=ROOT          /var/cache         btrfs   defaults,noatime,compress=zstd:3,space_cache=v2,subvol=@var_cache  0      0
+
+# Optional: /var/db/repos/gentoo (Subvol=@usr_portage)
+LABEL=ROOT          /var/db/repos/gentoo       btrfs   defaults,noatime,compress=zstd:3,space_cache=v2,subvol=@usr_portage 0      0
+
+# DVD-Laufwerk (z. B. /dev/sr0)
+# "noauto,user,ro" bedeutet: 
+#   - "noauto": Wird beim Boot nicht automatisch gemountet
+#   - "user": Benutzer dürfen mounten/umounten
+#   - "ro": read-only
+/dev/sr0            /mnt/dvd           auto    noauto,user,ro  
