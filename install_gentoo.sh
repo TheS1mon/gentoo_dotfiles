@@ -121,17 +121,17 @@ mount "${efi_part}" /mnt/gentoo/efi
 chronyd -q
 
 wget -q --show-progress "${DIST}/${STAGE3PATH}" "${DIST}/${STAGE3PATH}.CONTENTS.gz" "${DIST}/${STAGE3PATH}.DIGESTS.asc"
-gpg --import /usr/share/openpgp-keys/gentoo-release.asc
-gpg --verify "${STAGE3}.asc" 
-gpg --verify "${STAGE3}.DIGESTS.asc"
-awk '/# SHA512 HASH/{getline; print}' ${STAGE3}.DIGESTS.asc | sha512sum -c
 
 tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 
 cp ./make.conf /mnt/gentoo/etc/portage/make.conf
-case $SSD in
-    [yes]* cp ./fstab /mnt/gentoo/etc/fstab
-    [no]* cp ./fstab_nossd /mnt/gentoo/etc/fstab
+if [ "$ssd" = "yes" ]; then
+    echo "SSD erkannt: Kopiere fstab..."
+    cp fstab /mnt/gentoo/etc/fstab
+elif [ "$ssd" = "no" ]; then
+    echo "Keine SSD: Kopiere fstab_nossd..."
+    cp fstab_nossd /mnt/gentoo/etc/fstab
+fi
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 
 mount --types proc /proc /mnt/gentoo/proc
@@ -174,3 +174,9 @@ read -e -p "Select Locale: " locale
 eselect locale set "$locale"
 
 env-update && source /etc/profile && export PS1="(chroot) ${PS1}"
+
+emerge --ask sys-kernel/linux-firmware
+# Intel CPU
+# emerge --ask sys-firmware/sof-firmware
+# emerge --ask sys-firmware/intel-microcode
+
