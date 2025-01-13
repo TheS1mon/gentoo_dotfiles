@@ -27,11 +27,6 @@ ping -c3 "www.gentoo.org"
 echo "####################################"
 read -p "Please validate the internet connectivity before continuing. Press Enter when ready" < /dev/tty
 
-cat > /etc/resolv.conf << EOF
-nameserver 9.9.9.9
-nameserver 149.112.112.112
-EOF
-
 echo "###############Hard Disks###############"
 fdisk -l
 echo "########################################"
@@ -120,19 +115,20 @@ mount "${efi_part}" /mnt/gentoo/efi
 
 chronyd -q
 
-wget -q --show-progress "${DIST}/${STAGE3PATH}" "${DIST}/${STAGE3PATH}.CONTENTS.gz" "${DIST}/${STAGE3PATH}.DIGESTS.asc"
+wget -q --show-progress "${DIST}/${STAGE3PATH}"
 
 tar xpvf stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner -C /mnt/gentoo
 
 cp ./make.conf /mnt/gentoo/etc/portage/make.conf
-if [ "$ssd" = "yes" ]; then
+if [ "$SSD" = "yes" ]; then
     echo "SSD erkannt: Kopiere fstab..."
     cp fstab /mnt/gentoo/etc/fstab
-elif [ "$ssd" = "no" ]; then
+elif [ "$SSD" = "no" ]; then
     echo "Keine SSD: Kopiere fstab_nossd..."
     cp fstab_nossd /mnt/gentoo/etc/fstab
 fi
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+cp install_gentoo_step2.sh /mnt/gentoo/
 
 mount --types proc /proc /mnt/gentoo/proc
 mount --rbind /sys /mnt/gentoo/sys
@@ -141,42 +137,6 @@ mount --rbind /dev /mnt/gentoo/dev
 mount --make-rslave /mnt/gentoo/dev
 mount --bind /run /mnt/gentoo/run
 mount --make-slave /mnt/gentoo/run
+## First part finishes after chroot and the script will not continue to run.
 chroot /mnt/gentoo /bin/bash
-source /etc/profile
-export PS1="(chroot) ${PS1}"
-
-echo "Welcome in your new system (at least in your new chroot environment)."
-emerge --sync
-eselect news read
-eselect profile list
-
-read -e -p "Select Profile Number: " profilenb
-eselect profile set "$profilenb"
-
-emerge --ask --oneshot app-portage/cpuid2cpuflags
-cpuid2cpuflags
-echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
-
-emerge --ask --verbose --update --deep --changed-use @world
-emerge -av ${BASEPACKETSELECTION}
-emerge -av --depclean
-
-ln -sf ../usr/share/zoneinfo/Europe/Berlin /etc/localtime
-cat > /etc/locale.gen <<EOF
-en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-EOF
-
-locale-gen
-locale -a
-
-read -e -p "Select Locale: " locale
-eselect locale set "$locale"
-
-env-update && source /etc/profile && export PS1="(chroot) ${PS1}"
-
-emerge --ask sys-kernel/linux-firmware
-# Intel CPU
-# emerge --ask sys-firmware/sof-firmware
-# emerge --ask sys-firmware/intel-microcode
 
