@@ -24,10 +24,7 @@ useradd -m -G users,wheel,audio,cdrom -s /bin/zsh ${username}
 passwd ${username}
 
 ## Disable root login
-# passwd -l root
-
-## Copy the rest of the script to the users directory
-#cat <<EOF > /home/${username}/continue.sh
+passwd -l root
 
 ## Create an empty zsh config file so the first run init do not appear when changing user
 echo "# This is a dump comment" > /home/${username}/.zshrc
@@ -46,19 +43,21 @@ cd ~/
 
 ## Setup Oh-My-Zsh
 sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+## Setup Auto Update
 sed -i '/zstyle .*mode auto/ s/^#\s*//' ~/.zshrc
+## Set the correct date format
 sed -i 's/^#\s*HIST_STAMPS="mm\/dd\/yyyy"/HIST_STAMPS="dd.mm.yyyy"/' ~/.zshrc
+## Set the EDITOR env variable in zshrc
 echo "export EDITOR='nvim'" >> ~/.zshrc
+## Install Oh-My-ZSH Plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 sed -i '/^plugins=(/ s/)/ colored-man-pages zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
 
+## Delete zshrc backup file
 rm .zshrc.pre-oh-my-zsh
-
 EOF
 
-#chown ${username}:${username} /home/${username}/continue.sh
-#chmod +x /home/${username}/continue.sh
-
-#echo "Please run the script continue.sh"
-#su ${username}
+echo "Installation finished. You are now logged in as the new user."
+cd /home/${username}
+su ${username}
