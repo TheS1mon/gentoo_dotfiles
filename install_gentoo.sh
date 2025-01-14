@@ -145,6 +145,7 @@ mount --rbind /dev /mnt/gentoo/dev
 mount --make-rslave /mnt/gentoo/dev
 mount --bind /run /mnt/gentoo/run
 mount --make-slave /mnt/gentoo/run
+echo "Die Installationsschritte außerhalb der CHROOT-Umgebung sind jetzt abgeschlossen. Um fortzufahren, führe die Datei continue.sh aus."
 ## First part finishes after chroot and the script will not continue to run.
 chroot /mnt/gentoo /bin/bash
 

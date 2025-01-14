@@ -3,7 +3,7 @@ set -e # Breche direkt ab, wenn ein Fehler auftritt
 
 #### Configuration Variables ####
 			 
-BASEPACKETSELECTION="sys-fs/dosfstools sys-fs/btrfs-progs app-editors/neovim sys-process/htop net-misc/dhcpcd app-admin/sysklogd sys-process/cronie sys-apps/mlocate app-shells/bash-completion net-misc/chrony sys-block/io-scheduler-udev-rules app-misc/fastfetch sys-apps/less dev-vcs/git net-misc/wget sys-apps/man-pages app-misc/tmux app-shells/gentoo-bashcomp app-shells/zsh app-shells/zsh-completions app-shells/zsh-syntax-highlighting app-shells/gentoo-zsh-completions app-portage/portage-utils sys-apps/pciutils"
+BASEPACKETSELECTION="sys-fs/dosfstools sys-fs/btrfs-progs app-editors/nano app-editors/neovim sys-process/htop net-misc/dhcpcd app-admin/sysklogd sys-process/cronie sys-apps/mlocate app-shells/bash-completion net-misc/chrony sys-block/io-scheduler-udev-rules app-misc/fastfetch sys-apps/less dev-vcs/git net-misc/wget sys-apps/man-pages app-misc/tmux app-shells/gentoo-bashcomp app-shells/zsh app-shells/zsh-completions app-shells/zsh-syntax-highlighting app-shells/gentoo-zsh-completions app-portage/portage-utils sys-apps/pciutils"
 HOSTNAME="gentoo-tvstation"
 INTELCPU="yes"
 
@@ -13,7 +13,7 @@ source /etc/profile
 export PS1="(chroot) ${PS1}"
 
 echo "Welcome in your new system (at least in your new chroot environment)."
-emerge --sync
+emerge --verbose --sync
 eselect news read
 eselect profile list | less
 
@@ -25,9 +25,9 @@ emerge --oneshot app-portage/cpuid2cpuflags
 cpuid2cpuflags
 echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 
-emerge --update --deep --new-use @world
-emerge "$BASEPACKETSELECTION"
-emerge --depclean
+emerge --verbose --update --deep --newuse @world
+emerge --verbose ${BASEPACKETSELECTION}
+emerge --verbose --depclean
 
 ln -sf ../usr/share/zoneinfo/Europe/Berlin /etc/localtime
 cat <<EOF > /etc/locale.gen
@@ -50,13 +50,12 @@ if [ "$INTELCPU" = "yes" ]; then
 fi
 
 echo "sys-kernel/installkernel grub dracut" > /etc/portage/package.use/installkernel
-emerge sys-kernel/installkernel
-emerge sys-kernel/gentoo-kernel
+emerge --verbose sys-kernel/installkernel
+emerge --verbose sys-kernel/gentoo-kernel
 sed -i 's/^\(USE="[^"]*\)"/\1 dist-kernel"/' /etc/portage/make.conf
 
 echo "$HOSTNAME" > /etc/hostname
 rc-update add dhcpcd default
-rc-service dhcpcd start
 echo "Set root users password"
 passwd
 nvim /etc/rc.conf
@@ -66,12 +65,12 @@ rc-update add sysklogd default
 rc-update add cronie default
 rc-update add chronyd default
 
-emerge sys-boot/grub
+emerge --verbose sys-boot/grub
 grub-install --efi-directory=/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 
-emerge --update --deep --new-use @world
-emerge --depclean
+emerge --verbose --update --deep --newuse @world
+emerge --verbose --depclean
 eselect news read
 
 cd /root
