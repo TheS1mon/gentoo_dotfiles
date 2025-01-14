@@ -27,10 +27,20 @@ passwd ${username}
 # passwd -l root
 
 ## Copy the rest of the script to the users directory
+#cat <<EOF > /home/${username}/continue.sh
 
-cat <<EOF > /home/${username}/continue.sh
+## Create an empty zsh config file so the first run init do not appear when changing user
+echo "# This is a dump comment" > /home/${username}/.zshrc
+## Set up environment for script continuation
+chown ${username}:${username} /home/${username}/.zshrc
+
+su - ${username} -c 'bash -s' <<'EOF'
 #!/usr/bin/env bash
 set-e # Breche direkt ab, wenn ein Fehler auftritt
+
+## Das Zsh Install Script dazu anweisen, nicht automatisch die Shell zu wechseln.
+export CHSH=no
+export RUNZSH=no
 
 cd ~/
 
@@ -47,12 +57,8 @@ rm .zshrc.pre-oh-my-zsh
 
 EOF
 
-## Create an empty zsh config file so the first run init do not appear when changing user
-echo "# This is a dump comment" > /home/${username}/.zshrc
-## Set up environment for script continuation
-chown ${username}:${username} /home/${username}/.zshrc
-chown ${username}:${username} /home/${username}/continue.sh
-chmod +x /home/${username}/continue.sh
+#chown ${username}:${username} /home/${username}/continue.sh
+#chmod +x /home/${username}/continue.sh
 
-echo "Please run the script continue.sh"
-su ${username}
+#echo "Please run the script continue.sh"
+#su ${username}
