@@ -3,7 +3,7 @@ set -e # Breche direkt ab, wenn ein Fehler auftritt
 
 #### Configuration Variables ####
 			 
-BASEPACKETSELECTION="sys-fs/dosfstools sys-fs/btrfs-progs app-editors/nano app-editors/neovim sys-process/htop net-misc/dhcpcd app-admin/sysklogd sys-process/cronie sys-apps/mlocate app-shells/bash-completion net-misc/chrony sys-block/io-scheduler-udev-rules app-misc/fastfetch sys-apps/less dev-vcs/git net-misc/wget sys-apps/man-pages app-misc/tmux app-shells/gentoo-bashcomp app-shells/zsh app-shells/zsh-completions app-shells/zsh-syntax-highlighting app-shells/gentoo-zsh-completions app-portage/portage-utils sys-apps/pciutils"
+BASEPACKETSELECTION="sys-fs/dosfstools sys-fs/btrfs-progs app-editors/nano app-editors/neovim sys-process/htop net-misc/dhcpcd app-admin/sysklogd sys-process/cronie sys-apps/mlocate app-shells/bash-completion net-misc/chrony sys-block/io-scheduler-udev-rules app-misc/fastfetch sys-apps/less dev-vcs/git net-misc/wget sys-apps/man-pages app-misc/tmux app-shells/gentoo-bashcomp app-portage/portage-utils sys-apps/pciutils"
 HOSTNAME="gentoo-tvstation"
 INTELCPU="yes"
 
